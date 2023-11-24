@@ -52,8 +52,8 @@ contract FixedSwap is Base {
     event UserClaimed(uint256 indexed index, address indexed sender, uint256 amount0);
     event Reversed(uint256 indexed index, address indexed sender, uint256 amount0, uint256 amount1);
 
-    function initialize(uint256 _txFeeRatio, address _stakeContract, address _signer) public initializer {
-        super.__BounceBase_init(_txFeeRatio, _stakeContract, _signer);
+    function initialize(uint256 _txFeeRatio, address _adminWallet, address _signer) public initializer {
+        super.__BounceBase_init(_txFeeRatio, _adminWallet, _signer);
     }
 
     function createV2(
@@ -303,12 +303,12 @@ contract FixedSwap is Base {
             if (pool.token1 == address(0)) {
                 // deposit transaction fee to staking contract
                 // solhint-disable-next-line avoid-low-level-calls
-                (bool success, ) = stakeContract.call{value: txFee}(abi.encodeWithSignature("depositReward()"));
+                (bool success, ) = adminWallet.call{value: txFee}("");
                 if (!success) {
-                    revert("Revert: depositReward()");
+                    revert("Revert: on transfer");
                 }
             } else {
-                IERC20(pool.token1).transfer(stakeContract, txFee);
+                IERC20(pool.token1).transfer(adminWallet, txFee);
             }
         }
 

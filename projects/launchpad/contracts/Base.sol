@@ -15,7 +15,7 @@ contract Base is OwnableUpgradeable, ReentrancyGuardUpgradeable, IFixedSwap {
     uint256 public constant TX_FEE_DENOMINATOR = 1e18;
 
     uint256 public txFeeRatio;
-    address public stakeContract;
+    address public adminWallet;
     address public signer;
     // pool index => whitelist merkle root
     mapping(uint256 => bytes32) public whitelistRootP;
@@ -129,12 +129,12 @@ contract Base is OwnableUpgradeable, ReentrancyGuardUpgradeable, IFixedSwap {
     }
 
     // solhint-disable-next-line func-name-mixedcase
-    function __BounceBase_init(uint256 _txFeeRatio, address _stakeContract, address _signer) internal onlyInitializing {
+    function __BounceBase_init(uint256 _txFeeRatio, address _adminWallet, address _signer) internal onlyInitializing {
         super.__Ownable_init(msg.sender);
         super.__ReentrancyGuard_init();
 
         _setTxFeeRatio(_txFeeRatio);
-        _setStakeContract(_stakeContract);
+        _setAdminWallet(_adminWallet);
         _setSigner(_signer);
     }
 
@@ -173,8 +173,8 @@ contract Base is OwnableUpgradeable, ReentrancyGuardUpgradeable, IFixedSwap {
         _setTxFeeRatio(_txFeeRatio);
     }
 
-    function setStakeContract(address _stakeContract) external onlyOwner {
-        _setStakeContract(_stakeContract);
+    function setadminWallet(address _adminWallet) external onlyOwner {
+        _setAdminWallet(_adminWallet);
     }
 
     function setSigner(address _signer) external onlyOwner {
@@ -186,9 +186,9 @@ contract Base is OwnableUpgradeable, ReentrancyGuardUpgradeable, IFixedSwap {
         txFeeRatio = _txFeeRatio;
     }
 
-    function _setStakeContract(address _stakeContract) private {
-        require(_stakeContract != address(0), "invalid stakeContract");
-        stakeContract = _stakeContract;
+    function _setAdminWallet(address _adminWallet) private {
+        require(_adminWallet != address(0), "invalid adminWallet");
+        adminWallet = _adminWallet;
     }
 
     function _setSigner(address _signer) private {
