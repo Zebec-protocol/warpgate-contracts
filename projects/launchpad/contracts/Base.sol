@@ -8,10 +8,11 @@ import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import "@openzeppelin/contracts/interfaces/IERC20.sol";
 import {MerkleProof} from "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 import "@openzeppelin/contracts/utils/cryptography/SignatureChecker.sol";
+import "@openzeppelin/contracts/utils/cryptography/EIP712.sol";
 
 import "./IFixedSwap.sol";
 
-contract Base is OwnableUpgradeable, ReentrancyGuardUpgradeable, IFixedSwap {
+contract Base is OwnableUpgradeable, ReentrancyGuardUpgradeable, IFixedSwap, EIP712 {
     using ECDSA for bytes32;
 
     uint256 public constant TX_FEE_DENOMINATOR = 1e18;
@@ -40,6 +41,8 @@ contract Base is OwnableUpgradeable, ReentrancyGuardUpgradeable, IFixedSwap {
     mapping(address => mapping(uint256 => uint256)) public myReleased;
 
     event ReleaseDataSet(uint256 indexed index, ReleaseType releaseType, ReleaseData[] releaseDataList);
+
+    constructor() EIP712("WarpGateBase", "1.0.0") {}
 
     function computeReleasableAmount(uint256 index, uint256 myTotalRelease) public view returns (uint256) {
         ReleaseData[] memory _releaseDataList = releaseDataList[index];
@@ -166,6 +169,17 @@ contract Base is OwnableUpgradeable, ReentrancyGuardUpgradeable, IFixedSwap {
     function _verifySignature(bytes32 hash, uint256 expireAt, bytes memory signature) private view returns (bytes32) {
         require(block.timestamp < expireAt, "signature expired");
         bytes32 message = keccak256(abi.encode(msg.sender, hash, block.chainid, expireAt));
+        bytes32 hash = _hashTypedDataV4(
+            keccak256(
+                abi.encode(
+                    keccak256("Signature(address _account,bytes32 _hash,uint256 _chainId,uint256 _expireAt)"),
+                    msg.sender,
+                    hash,
+                    block.chainid,
+                    expireAt
+                )
+            )
+        );
         //check if signer is equal to the signer
         require(SignatureChecker.isValidSignatureNow(signer, message, signature), "invalid signature");
         return message;
