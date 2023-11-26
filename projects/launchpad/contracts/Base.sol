@@ -7,6 +7,8 @@ import "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol
 import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import "@openzeppelin/contracts/interfaces/IERC20.sol";
 import {MerkleProof} from "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
+import "@openzeppelin/contracts/utils/cryptography/SignatureChecker.sol";
+
 import "./IFixedSwap.sol";
 
 contract Base is OwnableUpgradeable, ReentrancyGuardUpgradeable, IFixedSwap {
@@ -165,7 +167,7 @@ contract Base is OwnableUpgradeable, ReentrancyGuardUpgradeable, IFixedSwap {
         require(block.timestamp < expireAt, "signature expired");
         bytes32 message = keccak256(abi.encode(msg.sender, hash, block.chainid, expireAt));
         //check if signer is equal to the signer
-        require(signer == message.recover(signature), "invalid signature");
+        require(SignatureChecker.isValidSignatureNow(signer, message, signature), "invalid signature");
         return message;
     }
 

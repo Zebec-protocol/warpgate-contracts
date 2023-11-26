@@ -11,6 +11,10 @@ contract Launchpad is IFixedSwap {
 
     address public fixedSwapContract;
 
+    constructor(address _fixedSwapContract) {
+        fixedSwapContract = _fixedSwapContract;
+    }
+
     function launchFixedSwap(
         CreateReq memory poolReq,
         ReleaseType releaseType,
