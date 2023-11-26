@@ -9,10 +9,19 @@ import "@openzeppelin/contracts/interfaces/IERC20.sol";
 import {MerkleProof} from "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 import "@openzeppelin/contracts/utils/cryptography/SignatureChecker.sol";
 import "@openzeppelin/contracts-upgradeable/utils/cryptography/EIP712Upgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
 import "./IFixedSwap.sol";
 
-contract Base is OwnableUpgradeable, ReentrancyGuardUpgradeable, IFixedSwap, EIP712Upgradeable {
+contract Base is
+    Initializable,
+    UUPSUpgradeable,
+    OwnableUpgradeable,
+    ReentrancyGuardUpgradeable,
+    IFixedSwap,
+    EIP712Upgradeable
+{
     using ECDSA for bytes32;
 
     uint256 public constant TX_FEE_DENOMINATOR = 1e18;
@@ -42,9 +51,7 @@ contract Base is OwnableUpgradeable, ReentrancyGuardUpgradeable, IFixedSwap, EIP
 
     event ReleaseDataSet(uint256 indexed index, ReleaseType releaseType, ReleaseData[] releaseDataList);
 
-    constructor() {
-        __EIP712_init("WarpGateBase", "1.0.0");
-    }
+    function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
 
     function computeReleasableAmount(uint256 index, uint256 myTotalRelease) public view returns (uint256) {
         ReleaseData[] memory _releaseDataList = releaseDataList[index];
@@ -171,19 +178,18 @@ contract Base is OwnableUpgradeable, ReentrancyGuardUpgradeable, IFixedSwap, EIP
     function _verifySignature(bytes32 hash, uint256 expireAt, bytes memory signature) private view returns (bytes32) {
         require(block.timestamp < expireAt, "signature expired");
         bytes32 message = keccak256(abi.encode(msg.sender, hash, block.chainid, expireAt));
-        bytes32 hash = _hashTypedDataV4(
+        bytes32 hashedMessage = _hashTypedDataV4(
             keccak256(
                 abi.encode(
-                    keccak256("Signature(address _account,bytes32 _hash,uint256 _chainId,uint256 _expireAt)"),
+                    keccak256("Signature(address _account,uint256 _chainId,uint256 _expireAt)"),
                     msg.sender,
-                    hash,
                     block.chainid,
                     expireAt
                 )
             )
         );
         //check if signer is equal to the signer
-        require(SignatureChecker.isValidSignatureNow(signer, message, signature), "invalid signature");
+        require(SignatureChecker.isValidSignatureNow(signer, hashedMessage, signature), "invalid signature");
         return message;
     }
 

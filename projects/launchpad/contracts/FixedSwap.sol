@@ -54,6 +54,7 @@ contract FixedSwap is Base {
 
     function initialize(uint256 _txFeeRatio, address _adminWallet, address _signer) public initializer {
         super.__BounceBase_init(_txFeeRatio, _adminWallet, _signer);
+        __EIP712_init("WarpGateBase", "1.0.0");
     }
 
     function createV2(
