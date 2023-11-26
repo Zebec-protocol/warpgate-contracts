@@ -8,11 +8,11 @@ import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import "@openzeppelin/contracts/interfaces/IERC20.sol";
 import {MerkleProof} from "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 import "@openzeppelin/contracts/utils/cryptography/SignatureChecker.sol";
-import "@openzeppelin/contracts/utils/cryptography/EIP712.sol";
+import "@openzeppelin/contracts-upgradeable/utils/cryptography/EIP712Upgradeable.sol";
 
 import "./IFixedSwap.sol";
 
-contract Base is OwnableUpgradeable, ReentrancyGuardUpgradeable, IFixedSwap, EIP712 {
+contract Base is OwnableUpgradeable, ReentrancyGuardUpgradeable, IFixedSwap, EIP712Upgradeable {
     using ECDSA for bytes32;
 
     uint256 public constant TX_FEE_DENOMINATOR = 1e18;
@@ -42,7 +42,9 @@ contract Base is OwnableUpgradeable, ReentrancyGuardUpgradeable, IFixedSwap, EIP
 
     event ReleaseDataSet(uint256 indexed index, ReleaseType releaseType, ReleaseData[] releaseDataList);
 
-    constructor() EIP712("WarpGateBase", "1.0.0") {}
+    constructor() {
+        __EIP712_init("WarpGateBase", "1.0.0");
+    }
 
     function computeReleasableAmount(uint256 index, uint256 myTotalRelease) public view returns (uint256) {
         ReleaseData[] memory _releaseDataList = releaseDataList[index];
