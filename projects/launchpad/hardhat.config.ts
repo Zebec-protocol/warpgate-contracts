@@ -6,49 +6,44 @@ import "hardhat-abi-exporter";
 import "hardhat-contract-sizer";
 import "solidity-coverage";
 import "dotenv/config";
+import "@openzeppelin/hardhat-upgrades";
+import "@nomiclabs/hardhat-etherscan";
 
 const bscTestnet: NetworkUserConfig = {
   url: "https://data-seed-prebsc-1-s1.binance.org:8545/",
   chainId: 97,
-  accounts: [process.env.KEY_TESTNET!],
+  accounts: [process.env.PRIVATE_KEY!],
 };
-
-
-const sepolia: NetworkUserConfig = {
-  url: "https://rpc.notadegen.com/eth/sepolia",
-  chainId: 11155111,
-  accounts: [process.env.KEY_TESTNET!],
-  gasPrice: 5000000007,
-};
-
-const immutableZkevmTestnet: NetworkUserConfig = {
-  url: 'https://rpc.testnet.immutable.com',
-  chainId: 13472,
-  accounts: [process.env.KEY_TESTNET!],
-  gasPrice: 3000000007,
-}
 
 const bscMainnet: NetworkUserConfig = {
   url: "https://bsc-dataseed.binance.org/",
   chainId: 56,
-  accounts: [process.env.KEY_MAINNET!],
+  accounts: [process.env.PRIVATE_KEY!],
+};
+
+const sepolia: NetworkUserConfig = {
+  url: "https://rpc-sepolia.rockx.com",
+  chainId: 11155111,
+  accounts: [process.env.PRIVATE_KEY!],
 };
 
 const config: HardhatUserConfig = {
   defaultNetwork: "hardhat",
   networks: {
     hardhat: {
-      chainId: 1337
+      gas: 120000000,
+      blockGasLimit: 0x1fffffffffffff,
     },
-    testnet: sepolia,
-    // mainnet: bscMainnet,
+    bscTestnet,
+    bscMainnet,
+    sepolia,
   },
   solidity: {
-    version: "0.6.12",
+    version: "0.8.20",
     settings: {
       optimizer: {
         enabled: true,
-        runs: 99999,
+        runs: 100,
       },
     },
   },
@@ -62,6 +57,9 @@ const config: HardhatUserConfig = {
     path: "./data/abi",
     clear: true,
     flat: false,
+  },
+  etherscan: {
+    apiKey: process.env.API_KEY,
   },
 };
 
