@@ -2,7 +2,7 @@ export default {
   Admin: {
     // TODO: Change
     mainnet: "0x0000000000000000000000000000000000000000",
-    testnet: "0x0000000000000000000000000000000000000000",
+    testnet: "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
   },
   CakeVault: {
     mainnet: "0xa80240eb5d7e05d3f250cf000eec0891d00b51cc",

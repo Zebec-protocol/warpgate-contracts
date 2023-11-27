@@ -13,6 +13,21 @@ const bscTestnet: NetworkUserConfig = {
   accounts: [process.env.KEY_TESTNET!],
 };
 
+
+const sepolia: NetworkUserConfig = {
+  url: "https://rpc.notadegen.com/eth/sepolia",
+  chainId: 11155111,
+  accounts: [process.env.KEY_TESTNET!],
+  gasPrice: 5000000007,
+};
+
+const immutableZkevmTestnet: NetworkUserConfig = {
+  url: 'https://rpc.testnet.immutable.com',
+  chainId: 13472,
+  accounts: [process.env.KEY_TESTNET!],
+  gasPrice: 3000000007,
+}
+
 const bscMainnet: NetworkUserConfig = {
   url: "https://bsc-dataseed.binance.org/",
   chainId: 56,
@@ -22,8 +37,10 @@ const bscMainnet: NetworkUserConfig = {
 const config: HardhatUserConfig = {
   defaultNetwork: "hardhat",
   networks: {
-    hardhat: {},
-    // testnet: bscTestnet,
+    hardhat: {
+      chainId: 1337
+    },
+    testnet: sepolia,
     // mainnet: bscMainnet,
   },
   solidity: {

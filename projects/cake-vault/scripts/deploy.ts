@@ -1,12 +1,12 @@
 import { ethers, network, run } from "hardhat";
-import config from "../config";
 import { constants } from "@openzeppelin/test-helpers";
+import config from "../config";
 
 const main = async () => {
   // Get network name: hardhat, testnet or mainnet.
   const { name } = network;
 
-  if (name == "mainnet") {
+  if (name === "mainnet") {
     if (!process.env.KEY_MAINNET) {
       throw new Error("Missing private key, refer to README 'Deployment' section");
     }
@@ -29,9 +29,13 @@ const main = async () => {
 
   console.log("Deploying to network:", network);
 
-  let cake, syrup, masterchef, admin, treasury;
+  let cake;
+  let syrup;
+  let masterchef;
+  let admin;
+  let treasury;
 
-  if (name == "mainnet") {
+  if (name === "mainnet") {
     admin = config.Admin[name];
     treasury = config.Treasury[name];
     cake = config.Cake[name];
@@ -47,32 +51,40 @@ const main = async () => {
     if (name === "hardhat") {
       const [deployer] = await ethers.getSigners();
       admin = deployer.address;
+      console.log("🚀 ~ file: deploy.ts:54 ~ main ~ admin:", admin)
       treasury = deployer.address;
+      console.log("🚀 ~ file: deploy.ts:56 ~ main ~ treasury:", treasury)
     } else {
       admin = config.Admin[name];
       treasury = config.Treasury[name];
     }
 
-    cake = (await CakeContract.deploy()).address;
+    cake = await CakeContract.deploy();
     await cake.deployed();
-    syrup = (await SyrupContract.deploy(cake)).address;
+
+    syrup = await SyrupContract.deploy(cake.address);
     await syrup.deployed();
-    masterchef = (await MasterChefContract.deploy(cake, syrup, admin, ethers.BigNumber.from("1"), currentBlock))
-      .address;
+    masterchef = await MasterChefContract.deploy(
+      cake.address,
+      syrup.address,
+      admin,
+      ethers.BigNumber.from("1"),
+      currentBlock
+    );
 
     await masterchef.deployed();
 
     console.log("Admin:", admin);
     console.log("Treasury:", treasury);
-    console.log("Cake deployed to:", cake);
-    console.log("Syrup deployed to:", syrup);
-    console.log("MasterChef deployed to:", masterchef);
+    console.log("Cake deployed to:", cake.address);
+    console.log("Syrup deployed to:", syrup.address);
+    console.log("MasterChef deployed to:", masterchef.address);
   }
 
   console.log("Deploying Cake Vault...");
 
   const CakeVaultContract = await ethers.getContractFactory("CakeVault");
-  const cakeVault = await CakeVaultContract.deploy(cake, syrup, masterchef, admin, treasury);
+  const cakeVault = await CakeVaultContract.deploy(cake.address, syrup.address, masterchef.address, admin, treasury);
   await cakeVault.deployed();
 
   console.log("CakeVault deployed to:", cakeVault.address);

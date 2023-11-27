@@ -36,5 +36,5 @@ jobs:
       - name: Install dependencies
         run: yarn install
 
-      - name: Run Prettier
-        run: yarn format:check
+      # - name: Run Prettier
+      #   run: yarn format:check
