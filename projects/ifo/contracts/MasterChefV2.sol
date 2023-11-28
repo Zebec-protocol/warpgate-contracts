@@ -8,7 +8,7 @@ import "@openzeppelin/contracts/math/SafeMath.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "./interfaces/IBEP20.sol";
 import "./SafeBEP20.sol";
-import "./interfaces/IMasterChefV2.sol";
+import "./interfaces/IMasterChef.sol";
 
 /// @notice The (older) MasterChef contract gives out a constant number of CAKE tokens per block.
 /// It is the only address with minting rights for CAKE.
@@ -59,7 +59,7 @@ contract MasterChefV2 is  Ownable, ReentrancyGuard {
     }
 
     /// @notice Address of MCV1 contract.
-    IMasterChefV2 public immutable MASTER_CHEF;
+    IMasterChef public immutable MASTER_CHEF;
     /// @notice Address of CAKE contract.
     IBEP20 public immutable CAKE;
 
@@ -123,7 +123,7 @@ contract MasterChefV2 is  Ownable, ReentrancyGuard {
     /// @param _MASTER_PID The pool id of the dummy pool on the MCV1.
     /// @param _burnAdmin The address of burn admin.
     constructor(
-        IMasterChefV2 _MASTER_CHEF,
+        IMasterChef _MASTER_CHEF,
         IBEP20 _CAKE,
         uint256 _MASTER_PID,
         address _burnAdmin

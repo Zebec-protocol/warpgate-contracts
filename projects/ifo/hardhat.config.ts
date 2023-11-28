@@ -1,5 +1,6 @@
 import type { HardhatUserConfig, NetworkUserConfig } from "hardhat/types";
 import "@nomiclabs/hardhat-ethers";
+import "@nomicfoundation/hardhat-verify";
 import "@nomiclabs/hardhat-web3";
 import "@nomiclabs/hardhat-truffle5";
 import "hardhat-abi-exporter";
@@ -59,6 +60,9 @@ const config: HardhatUserConfig = {
     path: "./data/abi",
     clear: true,
     flat: false,
+  },
+  etherscan: {
+    apiKey: "WSDFQ3HZDJY1UZUJ4U523IZ3VGNR54FPJS",
   },
 };
 
