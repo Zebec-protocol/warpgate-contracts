@@ -12,12 +12,12 @@ const main = async () => {
     console.log("Compiled contracts");
 
     const CakePool = await ethers.getContractFactory("CakePool");
-    const cakePool = await CakePool.attach("0x3F809a8Bfd3359E6e02D8389192075c1cDdB73db"
+    const cakePool = await CakePool.attach("0xe991b38bA80Ec844904506F1582CA48fc355c1A0"
       
     );
     const BEP20 = await ethers.getContractFactory("DummyToken");
     const bEP20 = await BEP20.attach(
-      "0xF13AE0A85078bB53B1102a82822fCA6bB2cBd014"
+      "0xC2F73b4f0e8B25690D180C4a1AEB12e3cBbb5F4D"
     );
 
     const balanceOf = await bEP20.balanceOf("0xC4c3d44eB95C24BABc172Ff4A7006ED1565e9D9E")
@@ -26,7 +26,7 @@ const main = async () => {
     const approveTx = await bEP20.approve(cakePool.address,balanceOf)
     await approveTx.wait()
         console.log("🚀 ~ file: initialize-cake-pool.ts:27 ~ main ~ approveTx:", approveTx)
-    const initTx = await cakePool.init("0xF13AE0A85078bB53B1102a82822fCA6bB2cBd014")
+    const initTx = await cakePool.init("0xC2F73b4f0e8B25690D180C4a1AEB12e3cBbb5F4D")
     console.log("🚀 ~ file: initialize-cake-pool.ts:19 ~ main ~ initTx:", initTx)
 
    
