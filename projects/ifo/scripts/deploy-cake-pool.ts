@@ -16,7 +16,7 @@ const main = async () => {
 
     const cakepool = await CakePool.deploy(
       "0x982a28ABA030a70f41774e5E0295BbD617CFC983", // cake token 
-      "0xb821Cb8D64215E5723950Ea2b264E888CB40477b", // masterchefV2
+      "0x845057C3d2E3C3F572a3D6814AA8DdB75F3ddD81", // masterchefV2
       "0xC4c3d44eB95C24BABc172Ff4A7006ED1565e9D9E", // admin
       "0xC4c3d44eB95C24BABc172Ff4A7006ED1565e9D9E", // treasury
       "0xC4c3d44eB95C24BABc172Ff4A7006ED1565e9D9E", // operator
