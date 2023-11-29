@@ -20,9 +20,9 @@ const main = async () => {
     console.log("masterchefV2 deployed to:", masterchefV2.address);
   } else if (name === "testnet") {
     const masterchefV2 = await MasterchefV2.deploy(
-        "0xE8B1397dbc6DeCE49a2A720bca8A791Ac4658471",// masterchef
+        "0xdDc495FA6e76afFf97A620c8d1dc6122589Ba82D",// masterchef
         "0x982a28ABA030a70f41774e5E0295BbD617CFC983", // cake
-        526, // pid
+        0, // pid
         "0xC4c3d44eB95C24BABc172Ff4A7006ED1565e9D9E" // admin 
     );
 

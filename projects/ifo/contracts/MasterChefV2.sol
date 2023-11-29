@@ -530,7 +530,7 @@ contract MasterChefV2 is  Ownable, ReentrancyGuard {
         if (_amount > 0) {
             // Check whether MCV2 has enough CAKE. If not, harvest from MCV1.
             if (CAKE.balanceOf(address(this)) < _amount) {
-                harvestFromMasterChef();
+                //harvestFromMasterChef();
             }
             uint256 balance = CAKE.balanceOf(address(this));
             if (balance < _amount) {

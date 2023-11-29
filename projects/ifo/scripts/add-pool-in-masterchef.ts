@@ -12,12 +12,12 @@ const main = async () => {
     console.log("Compiled contracts");
 
     const MasterChefv2 = await ethers.getContractFactory("MasterChefV2");
-    const masterChefv2 = await MasterChefv2.attach("0x845057C3d2E3C3F572a3D6814AA8DdB75F3ddD81"
+    const masterChefv2 = await MasterChefv2.attach("0xFBE810063472B8CbE9f6d1C7B963db78B63952C1"
       
     );
 
     const MasterChef = await ethers.getContractFactory("MasterChefV1");
-    const masterChef = await MasterChefv2.attach("0xE8B1397dbc6DeCE49a2A720bca8A791Ac4658471"
+    const masterChef = await MasterChefv2.attach("0xdDc495FA6e76afFf97A620c8d1dc6122589Ba82D"
       
     );
 
