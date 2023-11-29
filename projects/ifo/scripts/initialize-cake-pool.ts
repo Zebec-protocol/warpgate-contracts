@@ -12,7 +12,7 @@ const main = async () => {
     console.log("Compiled contracts");
 
     const CakePool = await ethers.getContractFactory("CakePool");
-    const cakePool = await CakePool.attach("0xe991b38bA80Ec844904506F1582CA48fc355c1A0"
+    const cakePool = await CakePool.attach("0x3c5b84afbbcA5E1b729597dE001128Da1c4D92B9"
       
     );
     const BEP20 = await ethers.getContractFactory("DummyToken");
