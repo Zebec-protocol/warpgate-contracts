@@ -15,9 +15,9 @@ const main = async () => {
   const Masterchef = await ethers.getContractFactory("MasterChefV1");
 
   const masterchef = await Masterchef.deploy(
-    "0x982a28ABA030a70f41774e5E0295BbD617CFC983", // cake
-    "0xc38d4aF35DEaa91903eca9e3Bf6eafa03d28A175", // syrup
-    "0xC4c3d44eB95C24BABc172Ff4A7006ED1565e9D9E", // admin
+    config.Cake[name], // cake
+    config.syrup[name], // syrup
+    config.AdminAddress[name], // admin
     BigNumber.from("40000000000000000000"),
     BigNumber.from(703820)
   );
