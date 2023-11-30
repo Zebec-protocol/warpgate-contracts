@@ -23,9 +23,9 @@ const sepolia: NetworkUserConfig = {
 
 const immutableZkevmTestnet: NetworkUserConfig = {
   url: "https://rpc.testnet.immutable.com",
-  chainId: 13472,
+  chainId: 13473,
   accounts: [process.env.KEY_TESTNET!],
-  gasPrice: 3000000007,
+  gasPrice: 100000000000,
 };
 
 const config: HardhatUserConfig = {
@@ -35,6 +35,8 @@ const config: HardhatUserConfig = {
       chainId: 1337,
     },
     testnet: sepolia,
+    //testnet: immutableZkevmTestnet,
+
     // mainnet: immutableZkevmMainnet,
   },
   solidity: {

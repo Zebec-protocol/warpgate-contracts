@@ -1,5 +1,6 @@
 import { getContractFactory } from "@nomiclabs/hardhat-ethers/types";
 import { ethers, network, run } from "hardhat";
+import config from "../config";
 
 const main = async () => {
   // Get network name: hardhat, testnet or mainnet.
@@ -12,18 +13,18 @@ const main = async () => {
     console.log("Compiled contracts");
 
     const MasterChefv2 = await ethers.getContractFactory("MasterChefV2");
-    const masterChefv2 = await MasterChefv2.attach("0xFBE810063472B8CbE9f6d1C7B963db78B63952C1"
+    const masterChefv2 = await MasterChefv2.attach(config.masterchefV2[name]
       
     );
 
     const MasterChef = await ethers.getContractFactory("MasterChefV1");
-    const masterChef = await MasterChefv2.attach("0xdDc495FA6e76afFf97A620c8d1dc6122589Ba82D"
+    const masterChef = await MasterChefv2.attach(config.masterchef[name]
       
     );
 
     const addV2Tx = await masterChefv2.add(
       10000,// _allocPoint
-      "0xC2F73b4f0e8B25690D180C4a1AEB12e3cBbb5F4D",//_lpToken
+      config.LPToken[name],//_lpToken
       true,// _isRegular
       true// _withUpdate
       )
@@ -31,7 +32,7 @@ const main = async () => {
 
     const addV1Tx = await masterChef.add(
       10000,// _allocPoint
-      "0xC2F73b4f0e8B25690D180C4a1AEB12e3cBbb5F4D",//_lpToken
+      config.LPToken[name],//_lpToken
       true,// withupdate
       )
     console.log("🚀 ~ file: initialize-cake-pool.ts:19 ~ main ~ initTx:", addV1Tx)
