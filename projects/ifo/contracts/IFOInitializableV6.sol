@@ -186,26 +186,24 @@ contract IFOInitializableV6 is IIFOV6, ReentrancyGuard, Whitelist {
      * @dev It can only be called once.
      * @param _lpToken: the LP token used
      * @param _offeringToken: the token that is offered for the IFO
-     * @param _pancakeProfileAddress: the address of the PancakeProfile
      * @param _iCakeAddress: the address of the ICake
      * @param _startBlock: the start block for the IFO
      * @param _endBlock: the end block for the IFO
      * @param _maxBufferBlocks: maximum buffer of blocks from the current block number
      * @param _maxPoolId: maximum id of pools, sometimes only public sale exist
-     * @param _adminAddress: the admin address for handling tokens
      */
     function initialize(
         address _lpToken,
         address _offeringToken,
-        address _pancakeProfileAddress,
+        //address _pancakeProfileAddress,
         uint256 _startBlock,
         uint256 _endBlock,
         uint256 _maxBufferBlocks,
         uint8 _maxPoolId,
         address _adminAddress,
         address _iCakeAddress,
-        uint256 _pointThreshold,
-        address _admissionProfile
+        uint256 _pointThreshold
+        //address _admissionProfile
     ) public {
         require(!isInitialized, "Operations: Already initialized");
         require(msg.sender == IFO_FACTORY, "Operations: Not factory");
@@ -216,10 +214,10 @@ contract IFOInitializableV6 is IIFOV6, ReentrancyGuard, Whitelist {
 
         lpToken = IERC20(_lpToken);
         offeringToken = IERC20(_offeringToken);
-        if (_pancakeProfileAddress != address(0)) {
-            IPancakeProfile(_pancakeProfileAddress).getTeamProfile(1);
-            pancakeProfileAddress = _pancakeProfileAddress;
-        }
+        // if (_pancakeProfileAddress != address(0)) {
+        //     IPancakeProfile(_pancakeProfileAddress).getTeamProfile(1);
+        //     pancakeProfileAddress = _pancakeProfileAddress;
+        // }
         if (_iCakeAddress != address(0)) {
             ICake(_iCakeAddress).admin();
             iCakeAddress = _iCakeAddress;
@@ -229,7 +227,7 @@ contract IFOInitializableV6 is IIFOV6, ReentrancyGuard, Whitelist {
         MAX_BUFFER_BLOCKS = _maxBufferBlocks;
         MAX_POOL_ID = _maxPoolId;
         pointThreshold = _pointThreshold;
-        admissionProfile = _admissionProfile;
+        //admissionProfile = _admissionProfile;
 
         // Transfer ownership to admin
         transferOwnership(_adminAddress);
@@ -241,13 +239,13 @@ contract IFOInitializableV6 is IIFOV6, ReentrancyGuard, Whitelist {
      * @param _pid: pool id
      */
     function depositPool(uint256 _amount, uint8 _pid) external override nonReentrant notContract {
-        if (pancakeProfileAddress != address(0)) {
-            // Checks whether the user has an active profile
-            require(
-                IPancakeProfile(pancakeProfileAddress).getUserStatus(msg.sender),
-                "Deposit: Must have an active profile"
-            );
-        }
+        // if (pancakeProfileAddress != address(0)) {
+        //     // Checks whether the user has an active profile
+        //     require(
+        //         IPancakeProfile(pancakeProfileAddress).getUserStatus(msg.sender),
+        //         "Deposit: Must have an active profile"
+        //     );
+        // }
 
         // Checks whether the pool id is valid
         require(_pid <= MAX_POOL_ID, "Deposit: Non valid pool id");
@@ -299,27 +297,28 @@ contract IFOInitializableV6 is IIFOV6, ReentrancyGuard, Whitelist {
             userCreditUsed[msg.sender] = userCreditUsed[msg.sender].add(_amount);
 
             emit Deposit(msg.sender, _amount, _pid);
-        } else {
-            if (pancakeProfileAddress != address(0)) {
-                (
-                ,
-                uint256 profileNumberPoints,
-                ,
-                address profileAddress,
-                uint256 tokenId,
-                bool active
-                ) = IPancakeProfile(pancakeProfileAddress).getUserProfile(msg.sender);
+        }
+        // else {
+        //     if (pancakeProfileAddress != address(0)) {
+        //         (
+        //         ,
+        //         uint256 profileNumberPoints,
+        //         ,
+        //         address profileAddress,
+        //         uint256 tokenId,
+        //         bool active
+        //         ) = IPancakeProfile(pancakeProfileAddress).getUserProfile(msg.sender);
 
-                require(active, "profile not active");
+        //         require(active, "profile not active");
 
-                // Must meet one of three admission requirement
-                require(
-                    _isQualifiedPoints(profileNumberPoints) ||
-                    _isQualifiedWhitelist(msg.sender) ||
-                    _isQualifiedNFT(msg.sender, profileAddress, tokenId),
-                    "Deposit: Not meet any one of required conditions"
-                );
-            }
+        //         // Must meet one of three admission requirement
+        //         require(
+        //             _isQualifiedPoints(profileNumberPoints) ||
+        //             _isQualifiedWhitelist(msg.sender) ||
+        //             _isQualifiedNFT(msg.sender, profileAddress, tokenId),
+        //             "Deposit: Not meet any one of required conditions"
+        //         );
+        //     }
 
             // Transfers funds to this contract
             lpToken.safeTransferFrom(msg.sender, address(this), _amount);
@@ -339,42 +338,42 @@ contract IFOInitializableV6 is IIFOV6, ReentrancyGuard, Whitelist {
             // Updates the totalAmount for pool
             _poolInformation[_pid].totalAmountPool = _poolInformation[_pid].totalAmountPool.add(_amount);
 
-            if (pancakeProfileAddress != address(0)) {
-                (
-                ,
-                uint256 profileNumberPoints,
-                ,
-                address profileAddress,
-                uint256 tokenId,
-                bool active
-                ) = IPancakeProfile(pancakeProfileAddress).getUserProfile(msg.sender);
+            // if (pancakeProfileAddress != address(0)) {
+            //     (
+            //     ,
+            //     uint256 profileNumberPoints,
+            //     ,
+            //     address profileAddress,
+            //     uint256 tokenId,
+            //     bool active
+            //     ) = IPancakeProfile(pancakeProfileAddress).getUserProfile(msg.sender);
 
-                // Update tokenIdUsed
-                if (
-                    !_isQualifiedPoints(profileNumberPoints) &&
-                !_isQualifiedWhitelist(msg.sender) &&
-                profileAddress == admissionProfile
-                ) {
-                    if (tokenIdUsed[tokenId] == address(0)) {
-                        // update tokenIdUsed
-                        tokenIdUsed[tokenId] = msg.sender;
-                    } else {
-                        require(tokenIdUsed[tokenId] == msg.sender, "Deposit: NFT used by another address already");
-                    }
-                    if (userNftTokenId[msg.sender] == 0) {
-                        // update userNftTokenId
-                        userNftTokenId[msg.sender] = tokenId;
-                    } else {
-                        require(
-                            userNftTokenId[msg.sender] == tokenId,
-                            "Deposit: NFT tokenId is not the same as registered"
-                        );
-                    }
-                }
-            }
+            //     // Update tokenIdUsed
+            //     if (
+            //         !_isQualifiedPoints(profileNumberPoints) &&
+            //     !_isQualifiedWhitelist(msg.sender) &&
+            //     profileAddress == admissionProfile
+            //     ) {
+            //         if (tokenIdUsed[tokenId] == address(0)) {
+            //             // update tokenIdUsed
+            //             tokenIdUsed[tokenId] = msg.sender;
+            //         } else {
+            //             require(tokenIdUsed[tokenId] == msg.sender, "Deposit: NFT used by another address already");
+            //         }
+            //         if (userNftTokenId[msg.sender] == 0) {
+            //             // update userNftTokenId
+            //             userNftTokenId[msg.sender] = tokenId;
+            //         } else {
+            //             require(
+            //                 userNftTokenId[msg.sender] == tokenId,
+            //                 "Deposit: NFT tokenId is not the same as registered"
+            //             );
+            //         }
+            //     }
+            // }
 
             emit Deposit(msg.sender, _amount, _pid);
-        }
+        
     }
 
     /**
@@ -394,15 +393,15 @@ contract IFOInitializableV6 is IIFOV6, ReentrancyGuard, Whitelist {
         // Checks whether the user has already harvested
         require(!_userInfo[msg.sender][_pid].claimedPool, "Harvest: Already done");
 
-        if (userNftTokenId[msg.sender] != 0) {
-            (, , , address profileAddress, uint256 tokenId, bool isActive) = IPancakeProfile(pancakeProfileAddress)
-            .getUserProfile(msg.sender);
+        // if (userNftTokenId[msg.sender] != 0) {
+        //     (, , , address profileAddress, uint256 tokenId, bool isActive) = IPancakeProfile(pancakeProfileAddress)
+        //     .getUserProfile(msg.sender);
 
-            require(
-                isActive && profileAddress == admissionProfile && userNftTokenId[msg.sender] == tokenId,
-                "Harvest: NFT requirements must be met for harvest"
-            );
-        }
+        //     require(
+        //         isActive && profileAddress == admissionProfile && userNftTokenId[msg.sender] == tokenId,
+        //         "Harvest: NFT requirements must be met for harvest"
+        //     );
+        // }
 
         // Claim points if possible
         _claimPoints(msg.sender);
@@ -944,7 +943,7 @@ contract IFOInitializableV6 is IIFOV6, ReentrancyGuard, Whitelist {
      * @param _user: user address
      */
     function _claimPoints(address _user) internal {
-        if (pancakeProfileAddress != address(0)) {
+        //if (pancakeProfileAddress != address(0)) {
             if (!_hasClaimedPoints[_user] && numberPoints > 0) {
                 uint256 sumPools;
                 for (uint8 i = 0; i <= MAX_POOL_ID; i++) {
@@ -953,10 +952,10 @@ contract IFOInitializableV6 is IIFOV6, ReentrancyGuard, Whitelist {
                 if (sumPools > thresholdPoints) {
                     _hasClaimedPoints[_user] = true;
                     // Increase user points
-                    IPancakeProfile(pancakeProfileAddress).increaseUserPoints(msg.sender, numberPoints, campaignId);
+                   // IPancakeProfile(pancakeProfileAddress).increaseUserPoints(msg.sender, numberPoints, campaignId);
                 }
             }
-        }
+        //}
     }
 
     /**
@@ -1087,33 +1086,33 @@ contract IFOInitializableV6 is IIFOV6, ReentrancyGuard, Whitelist {
         return isWhitelisted(_user);
     }
 
-    function isQualifiedPoints(address _user) external view returns (bool) {
-        if (pancakeProfileAddress == address(0)) {
-            return true;
-        }
-        if (!IPancakeProfile(pancakeProfileAddress).getUserStatus(_user)) {
-            return false;
-        }
+    // function isQualifiedPoints(address _user) external view returns (bool) {
+    //     if (pancakeProfileAddress == address(0)) {
+    //         return true;
+    //     }
+    //     if (!IPancakeProfile(pancakeProfileAddress).getUserStatus(_user)) {
+    //         return false;
+    //     }
 
-        (, uint256 profileNumberPoints, , , , ) = IPancakeProfile(pancakeProfileAddress).getUserProfile(_user);
-        return (pointThreshold != 0 && profileNumberPoints >= pointThreshold);
-    }
+    //     (, uint256 profileNumberPoints, , , , ) = IPancakeProfile(pancakeProfileAddress).getUserProfile(_user);
+    //     return (pointThreshold != 0 && profileNumberPoints >= pointThreshold);
+    // }
 
-    function isQualifiedNFT(address _user) external view returns (bool) {
-        if (pancakeProfileAddress == address(0)) {
-            return true;
-        }
-        if (!IPancakeProfile(pancakeProfileAddress).getUserStatus(_user)) {
-            return false;
-        }
+    // function isQualifiedNFT(address _user) external view returns (bool) {
+    //     if (pancakeProfileAddress == address(0)) {
+    //         return true;
+    //     }
+    //     if (!IPancakeProfile(pancakeProfileAddress).getUserStatus(_user)) {
+    //         return false;
+    //     }
 
-        (, , , address profileAddress, uint256 tokenId, ) = IPancakeProfile(pancakeProfileAddress).getUserProfile(
-            _user
-        );
+    //     (, , , address profileAddress, uint256 tokenId, ) = IPancakeProfile(pancakeProfileAddress).getUserProfile(
+    //         _user
+    //     );
 
-        return (profileAddress == admissionProfile &&
-        (tokenIdUsed[tokenId] == address(0) || tokenIdUsed[tokenId] == _user));
-    }
+    //     return (profileAddress == admissionProfile &&
+    //     (tokenIdUsed[tokenId] == address(0) || tokenIdUsed[tokenId] == _user));
+    // }
 
     function _isQualifiedWhitelist(address _user) internal view returns (bool) {
         return isWhitelisted(_user);
@@ -1123,12 +1122,14 @@ contract IFOInitializableV6 is IIFOV6, ReentrancyGuard, Whitelist {
         return (pointThreshold != 0 && profileNumberPoints >= pointThreshold);
     }
 
-    function _isQualifiedNFT(
-        address _user,
-        address profileAddress,
-        uint256 tokenId
-    ) internal view returns (bool) {
-        return (profileAddress == admissionProfile &&
-        (tokenIdUsed[tokenId] == address(0) || tokenIdUsed[tokenId] == _user));
-    }
+    // function _isQualifiedNFT(
+    //     address _user,
+    //     address profileAddress,
+    //     uint256 tokenId
+    // ) internal view returns (bool) {
+    //     return (profileAddress == admissionProfile &&
+    //     (tokenIdUsed[tokenId] == address(0) || tokenIdUsed[tokenId] == _user));
+    // }
+
 }
+

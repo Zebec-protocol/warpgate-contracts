@@ -18,11 +18,14 @@ const main = async () => {
 
     await iFOV6.deployed();
     console.log("iFOV6 deployed to:", iFOV6.address);
+    config.IFOV6[name]= iFOV6.address
+
   } else if (name === "testnet") {
     const iFOV6 = await IFOV6.deploy();
 
     await iFOV6.deployed();
     console.log("iFOV6 deployed to:", iFOV6.address);
+    config.IFOV6[name]= iFOV6.address
   }
 };
 main()

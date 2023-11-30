@@ -1,6 +1,7 @@
 import { getContractFactory } from "@nomiclabs/hardhat-ethers/types";
 import { BigNumber } from "ethers";
 import { ethers, network, run } from "hardhat";
+import config from "../config";
 
 const main = async () => {
   // Get network name: hardhat, testnet or mainnet.
@@ -14,8 +15,9 @@ const main = async () => {
 
     const iCake = await ethers.getContractFactory("ICake");
     const icake = await iCake.deploy(
-       "0xbE4E21A1aBAf7610a809fF2Bd982e0e06b772004",// cakepool
-      "0xC4c3d44eB95C24BABc172Ff4A7006ED1565e9D9E",// admin
+      "0x3c5b84afbbcA5E1b729597dE001128Da1c4D92B9",
+      //config.CakePool[name],// cakepool
+      config.AdminAddress[name],// admin
       BigNumber.from("25401600") // ceiling
     );
 

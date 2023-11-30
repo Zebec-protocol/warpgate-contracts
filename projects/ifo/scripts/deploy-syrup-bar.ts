@@ -14,15 +14,18 @@ const main = async () => {
   const SyrupBar = await ethers.getContractFactory("SyrupBar");
 
   if (name === "mainnet") {
-    const syrupBar = await SyrupBar.deploy();
+    const syrupBar = await SyrupBar.deploy(config.Cake[name]);
 
     await syrupBar.deployed();
     console.log("syrupBar deployed to:", syrupBar.address);
+    config.syrup[name] = syrupBar.address
   } else if (name === "testnet") {
-    const syrupBar = await SyrupBar.deploy();
+    const syrupBar = await SyrupBar.deploy(config.Cake[name]);
 
     await syrupBar.deployed();
     console.log("syrupBar deployed to:", syrupBar.address);
+    config.syrup[name] = syrupBar.address
+
   }
 };
 main()
