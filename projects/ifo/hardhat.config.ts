@@ -14,6 +14,8 @@ import "dotenv/config";
 //   accounts: [process.env.KEY_MAINNET!],
 // };
 
+
+
 const sepolia: NetworkUserConfig = {
   url: "https://rpc.notadegen.com/eth/sepolia",
   chainId: 11155111,
@@ -34,8 +36,8 @@ const config: HardhatUserConfig = {
     hardhat: {
       chainId: 1337,
     },
-    testnet: sepolia,
-    //testnet: immutableZkevmTestnet,
+    // testnet: sepolia,
+    testnet: immutableZkevmTestnet,
 
     // mainnet: immutableZkevmMainnet,
   },

@@ -13,12 +13,16 @@ const main = async () => {
     await run("compile");
     console.log("Compiled contracts");
 
+    console.log("Deploying Cake");
+
     const BEP20 = await ethers.getContractFactory("DummyToken");
     const bEP20 = await BEP20.deploy(
       "Dummy Token", "DUM"
     );
     await bEP20.deployed();
-    console.log("BEP20 deployed to:", bEP20.address);
+    console.log("Cake deployed to:", bEP20.address);
+
+
     config.LPToken[name] = bEP20.address
     const minttX = await bEP20.mint(BigNumber.from("1000000000000000000000000000000000000"));
     console.log("Token Mint Transaction", minttX)
@@ -32,3 +36,6 @@ main()
     console.error(error);
     process.exit(1);
   });
+
+
+  export default main;

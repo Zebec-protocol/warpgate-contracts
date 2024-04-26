@@ -4,7 +4,6 @@ pragma solidity ^0.6.12;
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
 import "@openzeppelin/contracts/utils/Pausable.sol";
-import "./interfaces/IMasterChefV2.sol";
 import "./interfaces/IBoostContract.sol";
 import "./interfaces/IVCake.sol";
 
@@ -25,9 +24,7 @@ contract CakePool is Ownable, Pausable {
 
     IERC20 public immutable token; // cake token.
 
-    IMasterChefV2 public immutable masterchefV2;
 
-    address public boostContract; // boost contract used in Masterchef.
     address public VCake;
 
     mapping(address => UserInfo) public userInfo;
@@ -39,7 +36,6 @@ contract CakePool is Ownable, Pausable {
     address public admin;
     address public treasury;
     address public operator;
-    uint256 public cakePoolPID;
     uint256 public totalBoostDebt; // total boost debt.
     uint256 public totalLockedAmount; // total lock amount.
 
@@ -84,7 +80,6 @@ contract CakePool is Ownable, Pausable {
     event NewAdmin(address admin);
     event NewTreasury(address treasury);
     event NewOperator(address operator);
-    event NewBoostContract(address boostContract);
     event NewVCakeContract(address VCake);
     event FreeFeeUser(address indexed user, bool indexed free);
     event NewPerformanceFee(uint256 performanceFee);
@@ -102,26 +97,20 @@ contract CakePool is Ownable, Pausable {
     /**
      * @notice Constructor
      * @param _token: Cake token contract
-     * @param _masterchefV2: MasterChefV2 contract
      * @param _admin: address of the admin
      * @param _treasury: address of the treasury (collects fees)
      * @param _operator: address of operator
-     * @param _pid: cake pool ID in MasterChefV2
      */
     constructor(
         IERC20 _token,
-        IMasterChefV2 _masterchefV2,
         address _admin,
         address _treasury,
-        address _operator,
-        uint256 _pid
+        address _operator
     ) public {
         token = _token;
-        masterchefV2 = _masterchefV2;
         admin = _admin;
         treasury = _treasury;
         operator = _operator;
-        cakePoolPID = _pid;
     }
 
     /**
@@ -133,8 +122,6 @@ contract CakePool is Ownable, Pausable {
         uint256 balance = dummyToken.balanceOf(msg.sender);
         require(balance != 0, "Balance must exceed 0");
         dummyToken.safeTransferFrom(msg.sender, address(this), balance);
-        dummyToken.approve(address(masterchefV2), balance);
-        masterchefV2.deposit(cakePoolPID, balance);
         emit Init();
     }
 
@@ -152,24 +139,6 @@ contract CakePool is Ownable, Pausable {
     modifier onlyOperatorOrCakeOwner(address _user) {
         require(msg.sender == _user || msg.sender == operator, "Not operator or cake owner");
         _;
-    }
-
-    /**
-     * @notice Update user info in Boost Contract.
-     * @param _user: User address
-     */
-    function updateBoostContractInfo(address _user) internal {
-        if (boostContract != address(0)) {
-            UserInfo storage user = userInfo[_user];
-            uint256 lockDuration = user.lockEndTime - user.lockStartTime;
-            IBoostContract(boostContract).onCakePoolUpdate(
-                _user,
-                user.lockedAmount,
-                lockDuration,
-                totalLockedAmount,
-                DURATION_FACTOR
-            );
-        }
     }
 
     /**
@@ -301,8 +270,6 @@ contract CakePool is Ownable, Pausable {
             IVCake(VCake).deposit(_user, _amount, _lockDuration);
         }
 
-        // Harvest tokens from Masterchef.
-        harvest();
 
         // Handle stock funds.
         if (totalShares == 0) {
@@ -381,9 +348,6 @@ contract CakePool is Ownable, Pausable {
         user.cakeAtLastUserAction = (user.shares * balanceOf()) / totalShares - user.userBoostedShare;
         user.lastUserActionTime = block.timestamp;
 
-        // Update user info in Boost Contract.
-        updateBoostContractInfo(_user);
-
         emit Deposit(_user, _amount, currentShares, _lockDuration, block.timestamp);
     }
 
@@ -423,9 +387,6 @@ contract CakePool is Ownable, Pausable {
         uint256 currentShare = _shares;
         uint256 sharesPercent = (_shares * PRECISION_FACTOR_SHARE) / user.shares;
 
-        // Harvest token from MasterchefV2.
-        harvest();
-
         // Update user share.
         updateUserShare(msg.sender);
 
@@ -463,9 +424,7 @@ contract CakePool is Ownable, Pausable {
 
         user.lastUserActionTime = block.timestamp;
 
-        // Update user info in Boost Contract.
-        updateBoostContractInfo(msg.sender);
-
+  
         emit Withdraw(msg.sender, currentAmount, currentShare);
     }
 
@@ -474,19 +433,6 @@ contract CakePool is Ownable, Pausable {
      */
     function withdrawAll() external {
         withdraw(userInfo[msg.sender].shares);
-    }
-
-    /**
-     * @notice Harvest pending CAKE tokens from MasterChef
-     */
-    function harvest() internal {
-        uint256 pendingCake = masterchefV2.pendingCake(cakePoolPID, address(this));
-        if (pendingCake > 0) {
-            uint256 balBefore = available();
-            masterchefV2.withdraw(cakePoolPID, 0);
-            uint256 balAfter = available();
-            emit Harvest(msg.sender, (balAfter - balBefore));
-        }
     }
 
     /**
@@ -519,15 +465,6 @@ contract CakePool is Ownable, Pausable {
         emit NewOperator(operator);
     }
 
-    /**
-     * @notice Set Boost Contract address
-     * @dev Callable by the contract admin.
-     */
-    function setBoostContract(address _boostContract) external onlyAdmin {
-        require(_boostContract != address(0), "Cannot be zero address");
-        boostContract = _boostContract;
-        emit NewBoostContract(boostContract);
-    }
 
     /**
      * @notice Set VCake Contract address
@@ -730,7 +667,7 @@ contract CakePool is Ownable, Pausable {
     function calculatePerformanceFee(address _user) public view returns (uint256) {
         UserInfo storage user = userInfo[_user];
         if (user.shares > 0 && !user.locked && !freePerformanceFeeUsers[_user]) {
-            uint256 pool = balanceOf() + calculateTotalPendingCakeRewards();
+            uint256 pool = balanceOf();
             uint256 totalAmount = (user.shares * pool) / totalShares;
             uint256 earnAmount = totalAmount - user.cakeAtLastUserAction;
             uint256 feeRate = performanceFee;
@@ -756,7 +693,7 @@ contract CakePool is Ownable, Pausable {
             !freeOverdueFeeUsers[_user] &&
             ((user.lockEndTime + UNLOCK_FREE_DURATION) < block.timestamp)
         ) {
-            uint256 pool = balanceOf() + calculateTotalPendingCakeRewards();
+            uint256 pool = balanceOf();
             uint256 currentAmount = (pool * (user.shares)) / totalShares - user.userBoostedShare;
             uint256 earnAmount = currentAmount - user.lockedAmount;
             uint256 overdueDuration = block.timestamp - user.lockEndTime - UNLOCK_FREE_DURATION;
@@ -792,7 +729,7 @@ contract CakePool is Ownable, Pausable {
             _shares = user.shares;
         }
         if (!freeWithdrawFeeUsers[msg.sender] && (block.timestamp < user.lastDepositedTime + withdrawFeePeriod)) {
-            uint256 pool = balanceOf() + calculateTotalPendingCakeRewards();
+            uint256 pool = balanceOf();
             uint256 sharesPercent = (_shares * PRECISION_FACTOR) / user.shares;
             uint256 currentTotalAmount = (pool * (user.shares)) /
                 totalShares -
@@ -809,17 +746,9 @@ contract CakePool is Ownable, Pausable {
         return 0;
     }
 
-    /**
-     * @notice Calculates the total pending rewards that can be harvested
-     * @return Returns total pending cake rewards
-     */
-    function calculateTotalPendingCakeRewards() public view returns (uint256) {
-        uint256 amount = masterchefV2.pendingCake(cakePoolPID, address(this));
-        return amount;
-    }
 
     function getPricePerFullShare() external view returns (uint256) {
-        return totalShares == 0 ? 1e18 : (((balanceOf() + calculateTotalPendingCakeRewards()) * (1e18)) / totalShares);
+        return totalShares == 0 ? 1e18 : (((balanceOf()) * (1e18)) / totalShares);
     }
 
     /**

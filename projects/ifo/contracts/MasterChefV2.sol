@@ -451,17 +451,7 @@ contract MasterChefV2 is  Ownable, ReentrancyGuard {
         emit UpdateWhiteList(_user, _isValid);
     }
 
-    /// @notice Update boost contract address and max boost factor.
-    /// @param _newBoostContract The new address for handling all the share boosts.
-    function updateBoostContract(address _newBoostContract) external onlyOwner {
-        require(
-            _newBoostContract != address(0) && _newBoostContract != boostContract,
-            "MasterChefV2: New boost contract address must be valid"
-        );
 
-        boostContract = _newBoostContract;
-        emit UpdateBoostContract(_newBoostContract);
-    }
 
     /// @notice Update user boost factor.
     /// @param _user The user address for boost factor updates.
