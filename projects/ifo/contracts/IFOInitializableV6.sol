@@ -23,7 +23,7 @@ contract IFOInitializableV6 is IIFOV6, ReentrancyGuard, Whitelist {
     using SafeERC20 for IERC20;
 
     // Number of pools
-    uint8 public constant NUMBER_POOLS = 2;
+    uint8 public constant NUMBER_POOLS = 1;
 
     // The address of the smart chef factory
     address public immutable IFO_FACTORY;
@@ -40,8 +40,6 @@ contract IFOInitializableV6 is IIFOV6, ReentrancyGuard, Whitelist {
     // The offering token
     IERC20 public offeringToken;
 
-    // PancakeProfile
-    address public pancakeProfileAddress;
 
     // ICake contract
     address public iCakeAddress;
@@ -70,8 +68,6 @@ contract IFOInitializableV6 is IIFOV6, ReentrancyGuard, Whitelist {
     // The minimum point special sale require
     uint256 public pointThreshold;
 
-    // The contract of the admission profile
-    address public admissionProfile;
 
     // Array of PoolCharacteristics of size NUMBER_POOLS
     PoolCharacteristics[NUMBER_POOLS] private _poolInformation;
@@ -88,8 +84,6 @@ contract IFOInitializableV6 is IIFOV6, ReentrancyGuard, Whitelist {
     // It maps if nft token id was used
     mapping(uint256 => address) public tokenIdUsed;
 
-    // It maps user address with NFT id
-    mapping(address => uint256) public userNftTokenId;
 
     // Struct that contains each pool characteristics
     struct PoolCharacteristics {
@@ -298,7 +292,7 @@ contract IFOInitializableV6 is IIFOV6, ReentrancyGuard, Whitelist {
 
             emit Deposit(msg.sender, _amount, _pid);
         }
-        // else {
+        else {
         //     if (pancakeProfileAddress != address(0)) {
         //         (
         //         ,
@@ -373,7 +367,7 @@ contract IFOInitializableV6 is IIFOV6, ReentrancyGuard, Whitelist {
             // }
 
             emit Deposit(msg.sender, _amount, _pid);
-        
+        }
     }
 
     /**
