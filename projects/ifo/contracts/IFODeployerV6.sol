@@ -35,7 +35,7 @@ contract IFODeployerV6 is Ownable {
         uint256 _endBlock,
         uint8 _maxPoolId,
         address _adminAddress,
-        address _iCakeAddress,
+        address _iCakeAddress
         // uint256 _pointThreshold
     ) external onlyOwner {
         require(IERC20(_lpToken).totalSupply() >= 0);
@@ -61,7 +61,7 @@ contract IFODeployerV6 is Ownable {
             MAX_BUFFER_BLOCKS,
             _maxPoolId,
             _adminAddress,
-            _iCakeAddress,
+            _iCakeAddress
             // _pointThreshold
         );
 

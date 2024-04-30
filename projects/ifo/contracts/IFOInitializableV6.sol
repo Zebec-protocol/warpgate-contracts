@@ -195,8 +195,8 @@ contract IFOInitializableV6 is IIFOV6, ReentrancyGuard, Whitelist {
         uint256 _maxBufferBlocks,
         uint8 _maxPoolId,
         address _adminAddress,
-        address _iCakeAddress,
-        uint256 _pointThreshold
+        address _iCakeAddress
+        // uint256 _pointThreshold
         //address _admissionProfile
     ) public {
         require(!isInitialized, "Operations: Already initialized");
@@ -220,7 +220,7 @@ contract IFOInitializableV6 is IIFOV6, ReentrancyGuard, Whitelist {
         endBlock = _endBlock;
         MAX_BUFFER_BLOCKS = _maxBufferBlocks;
         MAX_POOL_ID = _maxPoolId;
-        pointThreshold = _pointThreshold;
+        // pointThreshold = _pointThreshold;
         //admissionProfile = _admissionProfile;
 
         // Transfer ownership to admin
