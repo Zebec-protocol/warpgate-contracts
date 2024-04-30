@@ -27,7 +27,6 @@ contract IFODeployerV6 is Ownable {
      * @param _maxPoolId: maximum id of pools, sometimes only public sale exist
      * @param _adminAddress: the admin address for handling tokens
      * @param _iCakeAddress: iCake smart contract address, which is used to calculate IFO Limit
-     * @param _pointThreshold: The required amount of LP to receive points
      */
     function createIFO(
         address _lpToken,
@@ -37,7 +36,7 @@ contract IFODeployerV6 is Ownable {
         uint8 _maxPoolId,
         address _adminAddress,
         address _iCakeAddress,
-        uint256 _pointThreshold
+        // uint256 _pointThreshold
     ) external onlyOwner {
         require(IERC20(_lpToken).totalSupply() >= 0);
         require(IERC20(_offeringToken).totalSupply() >= 0);
@@ -63,7 +62,7 @@ contract IFODeployerV6 is Ownable {
             _maxPoolId,
             _adminAddress,
             _iCakeAddress,
-            _pointThreshold
+            // _pointThreshold
         );
 
         emit NewIFOContract(ifoAddress);
