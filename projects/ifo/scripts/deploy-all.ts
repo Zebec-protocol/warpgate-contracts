@@ -15,7 +15,7 @@ const main = async () => {
     console.log("Compiled contracts");
 
 
-    const Cake = "0x8b862b9C1F56b231bD6F3923b8a9bE6e1CCd099e";
+    const Cake = "0x26D2FEDaF83A7f781a0aa1E8Dc957e898aAf08b6";
     const admin = "0x538021F2429f4b51Dc00fC16D5a28E5AfD812BA0";
     const treasury = "0x58b3c79302bfFcBb4eEb063aCf3fDA03d30067B7";
     const operator = "0x58b3c79302bfFcBb4eEb063aCf3fDA03d30067B7";

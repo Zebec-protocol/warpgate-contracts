@@ -161,6 +161,18 @@ contract IFOInitializableV6 is IIFOV6, ReentrancyGuard, Whitelist {
     // Event when revoked
     event Revoked();
 
+    // Event when initialized
+    event Initialized(
+        address lpToken,
+        address offeringToken,
+        uint256 startBlock,
+        uint256 endBlock,
+        uint256 maxBufferBlocks,
+        uint8 maxPoolId,
+        address adminAddress,
+        address iCakeAddress
+    );
+
     // Modifier to prevent contracts to participate
     modifier notContract() {
         require(!_isContract(msg.sender), "contract not allowed");
@@ -225,6 +237,8 @@ contract IFOInitializableV6 is IIFOV6, ReentrancyGuard, Whitelist {
 
         // Transfer ownership to admin
         transferOwnership(_adminAddress);
+
+        emit Initialized(_lpToken, _offeringToken, _startBlock, _endBlock, _maxBufferBlocks, _maxPoolId, _adminAddress, _iCakeAddress);
     }
 
     /**
