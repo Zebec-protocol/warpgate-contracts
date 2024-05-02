@@ -67,6 +67,16 @@ const config: HardhatUserConfig = {
   },
   etherscan: {
     apiKey: "WSDFQ3HZDJY1UZUJ4U523IZ3VGNR54FPJS",
+    customChains: [
+      {
+        network: "immutableZkevmTestnet",
+        chainId: 13473,
+        urls: {
+          apiURL: "https://api-testnet.immutable.com",
+          browserURL: "https://testnet.immutable.com",
+        }
+      }
+    ]
   },
 };
 

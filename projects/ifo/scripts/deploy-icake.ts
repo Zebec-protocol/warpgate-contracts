@@ -15,9 +15,10 @@ const main = async () => {
 
     const iCake = await ethers.getContractFactory("ICake");
     const icake = await iCake.deploy(
-      "0x3c5b84afbbcA5E1b729597dE001128Da1c4D92B9",
-      //config.CakePool[name],// cakepool
-      config.AdminAddress[name],// admin
+      "0x70587a26170bDC2896939E67092097d827fa06cD", 
+      // config.CakePool[name],// cakepool
+      "0x538021F2429f4b51Dc00fC16D5a28E5AfD812BA0", // admin
+      // config.AdminAddress[name],// admin
       BigNumber.from("25401600") // ceiling
     );
 
