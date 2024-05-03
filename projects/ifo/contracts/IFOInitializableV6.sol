@@ -153,7 +153,7 @@ contract IFOInitializableV6 is IIFOV6, ReentrancyGuard, Whitelist {
     event PointParametersSet(uint256 campaignId, uint256 numberPoints, uint256 thresholdPoints);
 
     // Event when parameters are set for one of the pools
-    event PoolParametersSet(uint256 offeringAmountPool, uint256 raisingAmountPool, uint8 pid);
+    event PoolParametersSet(uint256 offeringAmountPool, uint256 raisingAmountPool, uint8 pid, uint256 limitPerUserInLP, bool hasTax, uint256 flatTaxRate, bool _isSpecialSale, uint256 vestingPercentage, uint256 vestingCliff, uint256 vestingDuration, uint256 vestingSlicePeriodSeconds); 
 
     // Event when released new amount
     event Released(address indexed beneficiary, uint256 amount);
@@ -557,7 +557,8 @@ contract IFOInitializableV6 is IIFOV6, ReentrancyGuard, Whitelist {
         // Update totalTokensOffered
         totalTokensOffered = tokensDistributedAcrossPools;
 
-        emit PoolParametersSet(_offeringAmountPool, _raisingAmountPool, _pid);
+        emit PoolParametersSet(_offeringAmountPool, _raisingAmountPool, _pid, _limitPerUserInLP, _hasTax, _flatTaxRate, _isSpecialSale, _vestingPercentage, _vestingCliff, _vestingDuration, _vestingSlicePeriodSeconds);
+
     }
 
     /**

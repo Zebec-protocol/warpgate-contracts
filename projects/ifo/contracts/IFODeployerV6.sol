@@ -36,22 +36,41 @@ contract IFODeployerV6 is Ownable {
         uint8 _maxPoolId,
         address _adminAddress,
         address _iCakeAddress
+    )
+        external
         // uint256 _pointThreshold
-    ) external onlyOwner {
+        onlyOwner
+    {
         require(IERC20(_lpToken).totalSupply() >= 0);
         require(IERC20(_offeringToken).totalSupply() >= 0);
-        require(_lpToken != _offeringToken, "Operations: Tokens must be be different");
-        require(_endBlock < (block.number + MAX_BUFFER_BLOCKS), "Operations: EndBlock too far");
-        require(_startBlock < _endBlock, "Operations: StartBlock must be inferior to endBlock");
-        require(_startBlock > block.number, "Operations: StartBlock must be greater than current block");
+        require(
+            _lpToken != _offeringToken,
+            "Operations: Tokens must be be different"
+        );
+        require(
+            _endBlock < (block.number + MAX_BUFFER_BLOCKS),
+            "Operations: EndBlock too far"
+        );
+        require(
+            _startBlock < _endBlock,
+            "Operations: StartBlock must be inferior to endBlock"
+        );
+        require(
+            _startBlock > block.number,
+            "Operations: StartBlock must be greater than current block"
+        );
 
         bytes memory bytecode = type(IFOInitializableV6).creationCode;
-        bytes32 salt = keccak256(abi.encodePacked(_lpToken, _offeringToken, _startBlock));
+        bytes32 salt = keccak256(
+            abi.encodePacked(_lpToken, _offeringToken, _startBlock)
+        );
         address ifoAddress;
 
         assembly {
             ifoAddress := create2(0, add(bytecode, 32), mload(bytecode), salt)
         }
+
+        require(ifoAddress != address(0));
 
         IFOInitializableV6(ifoAddress).initialize(
             _lpToken,
@@ -74,9 +93,14 @@ contract IFODeployerV6 is Ownable {
      * @dev This function is only callable by admin.
      */
     function recoverWrongTokens(address _tokenAddress) external onlyOwner {
-        uint256 balanceToRecover = IERC20(_tokenAddress).balanceOf(address(this));
+        uint256 balanceToRecover = IERC20(_tokenAddress).balanceOf(
+            address(this)
+        );
         require(balanceToRecover > 0, "Operations: Balance must be > 0");
-        IERC20(_tokenAddress).safeTransfer(address(msg.sender), balanceToRecover);
+        IERC20(_tokenAddress).safeTransfer(
+            address(msg.sender),
+            balanceToRecover
+        );
 
         emit AdminTokenRecovery(_tokenAddress, balanceToRecover);
     }
