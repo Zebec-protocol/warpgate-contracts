@@ -534,6 +534,9 @@ contract IFOInitializableV6 is IIFOV6, ReentrancyGuard, Whitelist {
         require(_vestingSlicePeriodSeconds >= 1, "slicePeriodSeconds must be exceeds 1");
         require(_vestingSlicePeriodSeconds <= _vestingDuration, "slicePeriodSeconds must be interior duration");
 
+        offeringToken.safeTransferFrom(msg.sender, address(this), _offeringAmountPool);
+
+
         _poolInformation[_pid].offeringAmountPool = _offeringAmountPool;
         _poolInformation[_pid].raisingAmountPool = _raisingAmountPool;
         _poolInformation[_pid].limitPerUserInLP = _limitPerUserInLP;

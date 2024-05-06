@@ -1,6 +1,4 @@
-/**
- *Submitted for verification at BscScan.com on 2020-09-22
-*/
+// SPDX-License-Identifier: MIT
 
 pragma solidity 0.6.12;
 
@@ -19,7 +17,7 @@ contract CakeToken is BEP20('PancakeSwap Token', 'Cake') {
     // Which is copied and modified from COMPOUND:
     // https://github.com/compound-finance/compound-protocol/blob/master/contracts/Governance/Comp.sol
 
-    /// @notice A record of each accounts delegate
+    /// @dev A record of each accounts delegate
     mapping (address => address) internal _delegates;
 
     /// @notice A checkpoint for marking number of votes from a given block
